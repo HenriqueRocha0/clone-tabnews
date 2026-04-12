@@ -32,43 +32,21 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("with duplicated 'username'", async () => {
-      const user1Response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const user1 = await orchestrator.createUser({});
+      const user2 = await orchestrator.createUser({});
+
+      const response = await fetch(
+        `http://localhost:3000/api/v1/users/${user2.username}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: user1.username,
+          }),
         },
-        body: JSON.stringify({
-          username: "user1",
-          email: "user1@example.com",
-          password: "senha123",
-        }),
-      });
-
-      expect(user1Response.status).toBe(201);
-
-      const user2Response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "user2",
-          email: "user2@example.com",
-          password: "senha123",
-        }),
-      });
-
-      expect(user2Response.status).toBe(201);
-
-      const response = await fetch("http://localhost:3000/api/v1/users/user2", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "user1",
-        }),
-      });
+      );
 
       expect(response.status).toBe(400);
 
@@ -83,43 +61,20 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("with duplicated 'email'", async () => {
-      const email1Response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "email1",
-          email: "email1@example.com",
-          password: "senha123",
-        }),
-      });
+      const createdUser1 = await orchestrator.createUser({});
+      const createdUser2 = await orchestrator.createUser({});
 
-      expect(email1Response.status).toBe(201);
-
-      const email2Response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "email2",
-          email: "email2@example.com",
-          password: "senha123",
-        }),
-      });
-
-      expect(email2Response.status).toBe(201);
+      console.log(createdUser2.username);
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/email2",
+        `http://localhost:3000/api/v1/users/${createdUser2.username}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: "email1@example.com",
+            email: createdUser1.email,
           }),
         },
       );
@@ -137,25 +92,10 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("with unique 'username'", async () => {
-      const uniqueUser1Response = await fetch(
-        "http://localhost:3000/api/v1/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: "uniqueUser1",
-            email: "uniqueUser1@example.com",
-            password: "senha123",
-          }),
-        },
-      );
-
-      expect(uniqueUser1Response.status).toBe(201);
+      const uniqueUser1 = await orchestrator.createUser({});
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/uniqueUser1",
+        `http://localhost:3000/api/v1/users/${uniqueUser1.username}`,
         {
           method: "PATCH",
           headers: {
@@ -174,7 +114,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "uniqueUser2",
-        email: "uniqueUser1@example.com",
+        email: uniqueUser1.email,
         password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -187,25 +127,10 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("with unique 'email'", async () => {
-      const uniqueEmail1Response = await fetch(
-        "http://localhost:3000/api/v1/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: "uniqueEmail1",
-            email: "uniqueEmail1@example.com",
-            password: "senha123",
-          }),
-        },
-      );
-
-      expect(uniqueEmail1Response.status).toBe(201);
+      const uniqueEmail1 = await orchestrator.createUser({});
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/uniqueEmail1",
+        `http://localhost:3000/api/v1/users/${uniqueEmail1.username}`,
         {
           method: "PATCH",
           headers: {
@@ -223,7 +148,7 @@ describe("PATCH /api/v1/users/[username]", () => {
 
       expect(responseBody).toEqual({
         id: responseBody.id,
-        username: "uniqueEmail1",
+        username: uniqueEmail1.username,
         email: "uniqueEmail2@example.com",
         password: responseBody.password,
         created_at: responseBody.created_at,
@@ -237,25 +162,10 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("with new 'password'", async () => {
-      const newPassword1Response = await fetch(
-        "http://localhost:3000/api/v1/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: "newPassword1",
-            email: "newPassword1@example.com",
-            password: "newPassword1",
-          }),
-        },
-      );
-
-      expect(newPassword1Response.status).toBe(201);
+      const newPassword1 = await orchestrator.createUser({});
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/newPassword1",
+        `http://localhost:3000/api/v1/users/${newPassword1.username}`,
         {
           method: "PATCH",
           headers: {
@@ -273,8 +183,8 @@ describe("PATCH /api/v1/users/[username]", () => {
 
       expect(responseBody).toEqual({
         id: responseBody.id,
-        username: "newPassword1",
-        email: "newPassword1@example.com",
+        username: newPassword1.username,
+        email: newPassword1.email,
         password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -285,7 +195,9 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
       expect(responseBody.updated_at > responseBody.created_at).toBe(true);
 
-      const userInDatabase = await user.findOneByUsername("newPassword1");
+      const userInDatabase = await user.findOneByUsername(
+        newPassword1.username,
+      );
 
       const correctPasswordMatch = await password.compare(
         "newPassword2",
@@ -293,7 +205,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       );
 
       const incorrectPasswordMatch = await password.compare(
-        "newPassword1",
+        newPassword1.password,
         userInDatabase.password,
       );
 
@@ -302,28 +214,19 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("should return success on change case of 'username'", async () => {
-      const user1Response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "userName1",
-          email: "username1@robsonsouza.dev.br",
-          password: "senha123",
-        }),
+      const user1Response = await orchestrator.createUser({
+        username: "userName1",
       });
-      expect(user1Response.status).toEqual(201);
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/username1",
+        `http://localhost:3000/api/v1/users/${user1Response.username}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: "UserName1",
+            username: user1Response.username.toUpperCase(),
           }),
         },
       );
