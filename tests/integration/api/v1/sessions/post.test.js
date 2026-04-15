@@ -1,6 +1,6 @@
-import orchestrator from "tests/orchestrator";
-import setCookieParser from "set-cookie-parser";
 import { version as uuidVersion } from "uuid";
+import setCookieParser from "set-cookie-parser";
+import orchestrator from "tests/orchestrator.js";
 import session from "models/session.js";
 
 beforeAll(async () => {
@@ -109,6 +109,11 @@ describe("POST /api/v1/sessions", () => {
 
       expect(response.status).toBe(201);
 
+      const cacheControl = response.headers.get("Cache-Control");
+      expect(cacheControl).toBe(
+        "no-store, no-cache, max-age=0, must-revalidate",
+      );
+
       const responseBody = await response.json();
 
       expect(responseBody).toEqual({
@@ -135,7 +140,7 @@ describe("POST /api/v1/sessions", () => {
       expect(expiresAt - createadAt).toBe(session.EXPERATION_IN_MILLISECONDS);
 
       const parsedSetCookie = setCookieParser(response, { map: true });
-      console.log(parsedSetCookie);
+
       expect(parsedSetCookie.session_id).toEqual({
         name: "session_id",
         value: responseBody.token,
