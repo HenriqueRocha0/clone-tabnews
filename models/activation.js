@@ -1,15 +1,16 @@
 import email from "infra/email.js";
 import database from "infra/database.js";
 import webserver from "infra/webserver.js";
+import { NotFoundError } from "infra/errors";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; //15 minutos
 
-async function findOneByUserId(userId) {
-  const newToken = await runSelectQuery(userId);
+async function findOneValidById(tokenId) {
+  const activationTokenObject = await runSelectQuery(tokenId);
 
-  return newToken;
+  return activationTokenObject;
 
-  async function runSelectQuery(userId) {
+  async function runSelectQuery(tokenId) {
     const results = await database.query({
       text: `
         SELECT 
@@ -17,12 +18,22 @@ async function findOneByUserId(userId) {
         FROM
           user_activation_tokens
         WHERE
-          user_id = $1
+          id = $1
+          AND expires_at > NOW()
+          AND used_at IS NULL
         LIMIT 
           1
         ;`,
-      values: [userId],
+      values: [tokenId],
     });
+
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message:
+          "O token de ativação utilizado não foi encontrado no sistema ou expirou.",
+        action: "Faça um novo cadastro.",
+      });
+    }
 
     return results.rows[0];
   }
@@ -66,7 +77,7 @@ Equipe Orcb,
 }
 
 const activation = {
-  findOneByUserId,
+  findOneValidById,
   create,
   sendEmailToUser,
 };
