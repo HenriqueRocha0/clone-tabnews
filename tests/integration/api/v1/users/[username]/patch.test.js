@@ -64,8 +64,6 @@ describe("PATCH /api/v1/users/[username]", () => {
       const createdUser1 = await orchestrator.createUser({});
       const createdUser2 = await orchestrator.createUser({});
 
-      console.log(createdUser2.username);
-
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${createdUser2.username}`,
         {
