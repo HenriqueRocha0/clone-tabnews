@@ -33,7 +33,7 @@ describe("GET /api/v1/user", () => {
         username: "UserWithValidSession",
       });
 
-      const activatedUser = await orchestrator.activateUser(createdUser);
+      const activatedUser = await orchestrator.activateUser(createdUser.id);
 
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
@@ -98,7 +98,7 @@ describe("GET /api/v1/user", () => {
         username: "SessionNearingExpiration",
       });
 
-      const activatedUser = await orchestrator.activateUser(createdUser);
+      const activatedUser = await orchestrator.activateUser(createdUser.id);
 
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
