@@ -38,10 +38,17 @@ async function postHandler(request, response) {
     "no-store, no-cache, max-age=0, must-revalidate",
   );
 
-  return response.status(201).json(newSession);
+  const secureOutputValues = authorization.filterOutput(
+    authenticatedUser,
+    "read:session",
+    newSession,
+  );
+
+  return response.status(201).json(secureOutputValues);
 }
 
 async function deleteHandler(request, response) {
+  const userTryingToDelete = request.context.user;
   const sessionToken = request.cookies.session_id;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
@@ -49,5 +56,11 @@ async function deleteHandler(request, response) {
   const expiredSession = await session.expiredById(sessionObject.id);
   controller.clearSessionCookie(response);
 
-  return response.status(200).json(expiredSession);
+  const secureOutputValues = authorization.filterOutput(
+    userTryingToDelete,
+    "read:session",
+    expiredSession,
+  );
+
+  return response.status(200).json(secureOutputValues);
 }
