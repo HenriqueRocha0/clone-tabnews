@@ -55,7 +55,7 @@ describe("POST /api/v1/users", () => {
       expect(incorrectPasswordMatch).toBe(false);
     });
 
-    test("with duplicated 'email'", async () => {
+    test("with duplicated `email`", async () => {
       const response1 = await fetch("http://localhost:3000/api/v1/users", {
         method: "POST",
         headers: {
@@ -88,12 +88,12 @@ describe("POST /api/v1/users", () => {
 
       expect(response2Body).toEqual({
         name: "ValidationError",
-        message: "O 'email' informado já está sendo utilizado.",
-        action: "Utilize outro 'email' para realizar a operação.",
+        message: "O `email` informado já está sendo utilizado.",
+        action: "Utilize outro `email` para realizar a operação.",
         status_code: 400,
       });
     });
-    test("with duplicated 'username'", async () => {
+    test("with duplicated `username`", async () => {
       const response1 = await fetch("http://localhost:3000/api/v1/users", {
         method: "POST",
         headers: {
@@ -126,8 +126,8 @@ describe("POST /api/v1/users", () => {
 
       expect(response2Body).toEqual({
         name: "ValidationError",
-        message: "O 'username' informado já está sendo utilizado.",
-        action: "Utilize outro 'username' para realizar esta operação.",
+        message: "O `username` informado já está sendo utilizado.",
+        action: "Utilize outro `username` para realizar esta operação.",
         status_code: 400,
       });
     });
