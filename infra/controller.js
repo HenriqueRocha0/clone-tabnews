@@ -13,7 +13,7 @@ import authorization from "models/authorization.js";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+  return response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
 function onErrorHandler(error, request, response) {
@@ -36,7 +36,7 @@ function onErrorHandler(error, request, response) {
 
   console.error(publicErrorObject);
 
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+  return response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
 async function setSessionCookie(sessionToken, response) {
@@ -47,7 +47,7 @@ async function setSessionCookie(sessionToken, response) {
     httpOnly: true,
   });
 
-  response.setHeader("Set-Cookie", setCookie);
+  return response.setHeader("Set-Cookie", setCookie);
 }
 
 async function clearSessionCookie(response) {
@@ -58,7 +58,7 @@ async function clearSessionCookie(response) {
     httpOnly: true,
   });
 
-  response.setHeader("Set-Cookie", setCookie);
+  return response.setHeader("Set-Cookie", setCookie);
 }
 
 async function injectAnonymousOrUser(request, response, next) {
@@ -78,10 +78,10 @@ async function injectAuthenticatedUser(request) {
   const sessionObject = await session.findOneValidByToken(sessionToken);
   const userObject = await user.findOneById(sessionObject.user_id);
 
-  request.context = {
+  return (request.context = {
     ...request.context,
     user: userObject,
-  };
+  });
 }
 
 function injectAnonymousUser(request) {
@@ -89,10 +89,10 @@ function injectAnonymousUser(request) {
     features: ["read:activation_token", "create:session", "create:user"],
   };
 
-  request.context = {
+  return (request.context = {
     ...request.context,
     user: anonymousUserObject,
-  };
+  });
 }
 
 function canRequest(feature) {
