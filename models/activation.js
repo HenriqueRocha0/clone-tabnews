@@ -41,10 +41,10 @@ async function findOneValidById(tokenId) {
   }
 }
 
-async function create(userId) {
+async function create(user) {
   const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONDS);
 
-  const newToken = await runInsertQuery(userId, expiresAt);
+  const newToken = await runInsertQuery(user.id, expiresAt);
   return newToken;
 
   async function runInsertQuery(userId, expiresAt) {

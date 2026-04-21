@@ -62,8 +62,8 @@ async function createUser(userObject) {
   });
 }
 
-async function createSession(userId) {
-  return await session.create(userId);
+async function createSession(user) {
+  return await session.create(user.id);
 }
 
 async function deleteAllEmails() {
@@ -95,8 +95,8 @@ function extracUUID(text) {
   return match ? match[0] : null;
 }
 
-async function activateUser(inactiveUserId) {
-  return await activation.activateUserByUserId(inactiveUserId);
+async function activateUser(inactiveUser) {
+  return await activation.activateUserByUserId(inactiveUser.id);
 }
 
 async function addFeaturesToUser(userObject, features) {

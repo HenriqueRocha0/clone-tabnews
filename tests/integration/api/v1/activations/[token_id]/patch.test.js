@@ -40,7 +40,7 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
 
       const createdUser = await orchestrator.createUser({});
 
-      const expiredActivationToken = await activation.create(createdUser.id);
+      const expiredActivationToken = await activation.create(createdUser);
 
       jest.useRealTimers();
 
@@ -66,7 +66,7 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
 
     test("With already used token", async () => {
       const createdUser = await orchestrator.createUser({});
-      const activationToken = await activation.create(createdUser.id);
+      const activationToken = await activation.create(createdUser);
 
       const response1 = await fetch(
         `http://localhost:3000/api/v1/activations/${activationToken.id}`,
@@ -99,7 +99,7 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
 
     test("With valid token", async () => {
       const createdUser = await orchestrator.createUser({});
-      const activationToken = await activation.create(createdUser.id);
+      const activationToken = await activation.create(createdUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/activations/${activationToken.id}`,
@@ -146,8 +146,8 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
 
     test("With valid token but already activated user", async () => {
       const createdUser = await orchestrator.createUser({});
-      await orchestrator.activateUser(createdUser.id);
-      const activationToken = await activation.create(createdUser.id);
+      await orchestrator.activateUser(createdUser);
+      const activationToken = await activation.create(createdUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/activations/${activationToken.id}`,
@@ -172,11 +172,11 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
   describe("Default user", () => {
     test("With valid token, but already logged in user", async () => {
       const user1 = await orchestrator.createUser({});
-      await orchestrator.activateUser(user1.id);
-      const user1SessionObject = await orchestrator.createSession(user1.id);
+      await orchestrator.activateUser(user1);
+      const user1SessionObject = await orchestrator.createSession(user1);
 
       const user2 = await orchestrator.createUser({});
-      const user2ActivationToken = await activation.create(user2.id);
+      const user2ActivationToken = await activation.create(user2);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/activations/${user2ActivationToken.id}`,
