@@ -39,7 +39,7 @@ function onErrorHandler(error, request, response) {
   return response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
-async function setSessionCookie(sessionToken, response) {
+function setSessionCookie(sessionToken, response) {
   const setCookie = cookie.serialize("session_id", sessionToken, {
     path: "/",
     maxAge: session.EXPERATION_IN_MILLISECONDS / 1000,
@@ -50,7 +50,7 @@ async function setSessionCookie(sessionToken, response) {
   return response.setHeader("Set-Cookie", setCookie);
 }
 
-async function clearSessionCookie(response) {
+function clearSessionCookie(response) {
   const setCookie = cookie.serialize("session_id", "invalid", {
     path: "/",
     maxAge: -1,
