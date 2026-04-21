@@ -2,6 +2,7 @@ import orchestrator from "tests/orchestrator";
 import { version as uuidVersion } from "uuid";
 import user from "models/user.js";
 import password from "models/password.js";
+import webserver from "infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -11,7 +12,7 @@ beforeAll(async () => {
 
 describe("PATCH /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
-    test("with unique 'username'", async () => {
+    test("with unique `username`", async () => {
       const uniqueUser1 = await orchestrator.createUser({});
 
       const response = await fetch(
@@ -32,7 +33,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       const responseBody = await response.json();
 
       expect(responseBody).toEqual({
-        action: 'Verifique se o seu usuário possui a feature "update:user"',
+        action: `Verifique se o seu usuário possui a feature "update:user"`,
         message: "Você não possui permissão para executar esta ação.",
         name: "ForbiddenError",
         status_code: 403,
@@ -41,13 +42,13 @@ describe("PATCH /api/v1/users/[username]", () => {
   });
 
   describe("Default user", () => {
-    test("with nonexistent 'username'", async () => {
+    test("with nonexistent `username`", async () => {
       const createdUser = await orchestrator.createUser({});
-      const activatedUser = await orchestrator.activateUser(createdUser.id);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const activatedUser = await orchestrator.activateUser(createdUser);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/UsuarioInexistente",
+        `${webserver.origin}/api/v1/users/UsuarioInexistente`,
         {
           method: "PATCH",
           headers: {
@@ -68,13 +69,11 @@ describe("PATCH /api/v1/users/[username]", () => {
       });
     });
 
-    test("with duplicated 'username'", async () => {
+    test("with duplicated `username`", async () => {
       const user1 = await orchestrator.createUser({});
       const user2 = await orchestrator.createUser({});
-      const activatedUser2 = await orchestrator.activateUser(user2.id);
-      const sessionObject2 = await orchestrator.createSession(
-        activatedUser2.id,
-      );
+      const activatedUser2 = await orchestrator.activateUser(user2);
+      const sessionObject2 = await orchestrator.createSession(activatedUser2);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${user2.username}`,
@@ -96,19 +95,17 @@ describe("PATCH /api/v1/users/[username]", () => {
 
       expect(responseBody).toEqual({
         name: "ValidationError",
-        message: "O 'username' informado já está sendo utilizado.",
-        action: "Utilize outro 'username' para realizar esta operação.",
+        message: "O `username` informado já está sendo utilizado.",
+        action: "Utilize outro `username` para realizar esta operação.",
         status_code: 400,
       });
     });
 
-    test("with 'username2' targeting `username1`", async () => {
+    test("with `username2` targeting `username1`", async () => {
       const user1 = await orchestrator.createUser({});
       const user2 = await orchestrator.createUser({});
-      const activatedUser2 = await orchestrator.activateUser(user2.id);
-      const sessionObject2 = await orchestrator.createSession(
-        activatedUser2.id,
-      );
+      const activatedUser2 = await orchestrator.activateUser(user2);
+      const sessionObject2 = await orchestrator.createSession(activatedUser2);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${user1.username}`,
@@ -137,14 +134,12 @@ describe("PATCH /api/v1/users/[username]", () => {
       });
     });
 
-    test("with duplicated 'email'", async () => {
+    test("with duplicated `email`", async () => {
       const createdUser1 = await orchestrator.createUser({});
 
       const createdUser2 = await orchestrator.createUser({});
-      const activatedUser2 = await orchestrator.activateUser(createdUser2.id);
-      const sessionObject2 = await orchestrator.createSession(
-        activatedUser2.id,
-      );
+      const activatedUser2 = await orchestrator.activateUser(createdUser2);
+      const sessionObject2 = await orchestrator.createSession(activatedUser2);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${createdUser2.username}`,
@@ -166,16 +161,16 @@ describe("PATCH /api/v1/users/[username]", () => {
 
       expect(responseBody).toEqual({
         name: "ValidationError",
-        message: "O 'email' informado já está sendo utilizado.",
-        action: "Utilize outro 'email' para realizar a operação.",
+        message: "O `email` informado já está sendo utilizado.",
+        action: "Utilize outro `email` para realizar a operação.",
         status_code: 400,
       });
     });
 
-    test("with unique 'username'", async () => {
+    test("with unique `username`", async () => {
       const uniqueUser = await orchestrator.createUser({});
-      const activatedUser = await orchestrator.activateUser(uniqueUser.id);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const activatedUser = await orchestrator.activateUser(uniqueUser);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${uniqueUser.username}`,
@@ -209,10 +204,10 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(responseBody.updated_at > responseBody.created_at).toBe(true);
     });
 
-    test("with unique 'email'", async () => {
+    test("with unique `email`", async () => {
       const uniqueEmail = await orchestrator.createUser({});
-      const activatedUser = await orchestrator.activateUser(uniqueEmail.id);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const activatedUser = await orchestrator.activateUser(uniqueEmail);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${uniqueEmail.username}`,
@@ -244,12 +239,16 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
       expect(responseBody.updated_at > responseBody.created_at).toBe(true);
+
+      const userInDatabase = await user.findOneByUsername(uniqueEmail.username);
+
+      expect(userInDatabase.email).toBe("uniqueEmail2@example.com");
     });
 
-    test("with new 'password'", async () => {
+    test("with new `password`", async () => {
       const newPassword1 = await orchestrator.createUser({});
-      const activatedUser = await orchestrator.activateUser(newPassword1.id);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const activatedUser = await orchestrator.activateUser(newPassword1);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${newPassword1.username}`,
@@ -300,12 +299,12 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(incorrectPasswordMatch).toBe(false);
     });
 
-    test("should return success on change case of 'username'", async () => {
+    test("should return success on change case of `username`", async () => {
       const user1Response = await orchestrator.createUser({
         username: "userName1",
       });
-      const activatedUser = await orchestrator.activateUser(user1Response.id);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const activatedUser = await orchestrator.activateUser(user1Response);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${user1Response.username}`,
@@ -328,16 +327,15 @@ describe("PATCH /api/v1/users/[username]", () => {
   describe("Privileged user", () => {
     test("With `update:user:others` targeting `defaultUser`", async () => {
       const privilegedUser = await orchestrator.createUser({});
-      const activatedPrivilegedUser = await orchestrator.activateUser(
-        privilegedUser.id,
-      );
+      const activatedPrivilegedUser =
+        await orchestrator.activateUser(privilegedUser);
 
       await orchestrator.addFeaturesToUser(privilegedUser, [
         "update:user:others",
       ]);
 
       const privilegedUserSession = await orchestrator.createSession(
-        activatedPrivilegedUser.id,
+        activatedPrivilegedUser,
       );
 
       const defaultUser = await orchestrator.createUser({});

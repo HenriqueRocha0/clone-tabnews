@@ -4,19 +4,17 @@ import user from "models/user.js";
 import activation from "models/activation.js";
 import authorization from "models/authorization";
 
-const router = createRouter();
-
-router.use(controller.injectAnonymousOrUser);
-router.post(controller.canRequest("create:user"), postHandler);
-
-export default router.handler(controller.errorHandlers);
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .post(controller.canRequest("create:user"), postHandler)
+  .handler(controller.errorHandlers);
 
 async function postHandler(request, response) {
   const userTryingToPost = request.context.user;
   const userInputValues = request.body;
   const newUser = await user.create(userInputValues);
 
-  const activationToken = await activation.create(newUser.id);
+  const activationToken = await activation.create(newUser);
 
   await activation.sendEmailToUser(newUser, activationToken);
   // 2. Enviar esse Token por Email
